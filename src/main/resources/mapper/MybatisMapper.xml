@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.phh.bo.mapper.MybatisMapper">
+    <select id="findAll" resultType="com.example.phh.bo.model.Todo">
+        /* findAll */
+        SELECT 
+            ID
+            , MEMO
+            , DUE_DATE as dueDate
+            , MODIFIED_DATETIME as modifiedDateTime 
+        FROM TODO 
+        order by id DESC
+    </select>
+
+    <select id="findById" parameterType="String" resultType="com.example.phh.bo.model.Todo">
+        /* findById */
+        SELECT 
+            ID
+            , MEMO
+            , DUE_DATE as dueDate
+            , MODIFIED_DATETIME as modifiedDateTime 
+        FROM TODO 
+        WHERE id = #{id}
+    </select>
+    
+    <insert id="add" parameterType="com.example.phh.bo.model.Todo">
+		/* add */
+		INSERT INTO TODO (
+			ID
+			, MEMO
+			, DUE_DATE
+			, MODIFIED_DATETIME
+		) VALUES (
+			#{id}
+			, #{memo, jdbcType=VARCHAR}
+			, #{dueDate, jdbcType=DATE}
+			, CURRENT_TIMESTAMP()
+		)
+	</insert>
+	
+	<update id="modify" parameterType="com.example.phh.bo.model.Todo">
+		/* modify */
+		UPDATE 
+			TODO 
+		SET 
+			MEMO = #{memo, jdbcType=VARCHAR}
+			, DUE_DATE = #{dueDate, jdbcType=DATE}
+			, MODIFIED_DATETIME = CURRENT_TIMESTAMP() 
+		WHERE 
+			ID = #{id}
+	</update>
+	
+	<delete id="remove" parameterType="String">
+		/* remove */
+		DELETE FROM TODO WHERE id = #{id}
+	</delete>
+</mapper>

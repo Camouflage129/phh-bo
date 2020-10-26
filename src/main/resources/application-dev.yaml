@@ -1,0 +1,10 @@
+spring:
+    datasource:
+        hikari:
+            driver-class-name: com.mysql.cj.jdbc.Driver
+            jdbc-url: ${DB_HOST}
+            username: ${DB_USERNAME}
+            password: ${DB_PASSWORD}
+            maximum-pool-size: ${DB_MAX_P_SIZE}
+            minimum-idle: ${DB_MIN_P_SIZE}
+            max-lifetime: ${DB_P_LIFETIME}

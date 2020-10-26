@@ -1,0 +1,10 @@
+spring:
+    datasource:
+        hikari:
+            driver-class-name: com.mysql.cj.jdbc.Driver
+            jdbc-url: jdbc:mysql://host.docker.internal:3306/camouflage?useUnicode=true&characterEncoding=utf8&serverTimezone=@time-zone@
+            username: phh
+            password: phh!@#
+            maximum-pool-size: 30
+            minimum-idle: 2
+            max-lifetime: 180000

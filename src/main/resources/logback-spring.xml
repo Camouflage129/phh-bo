@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration scan="true">
+    <appender name="stdout" class="ch.qos.logback.core.ConsoleAppender">
+        <layout class="ch.qos.logback.classic.PatternLayout">
+            <Pattern>
+                 %d{yyyy-MM-dd HH:mm:ss, Asia/Seoul} [%thread] %-5level %logger{36} - %msg %n
+            </Pattern>
+        </layout>
+    </appender>
+
+    <springProfile name="dev, stg, prd">
+        <appender name="fluentd" class="net.logstash.logback.appender.LogstashTcpSocketAppender">
+            <destination>${FULENTD_HOST}:24224</destination>
+            <encoder
+                class="net.logstash.logback.encoder.LoggingEventCompositeJsonEncoder">
+                <providers>
+                    <pattern><pattern>
+                        {
+                        "date":"%date{ISO8601, Asia/Seoul}",
+                        "level": "%level",
+                        "logtype": "${LOG_TYPE}",
+                        "project": "${PROJECT}",
+                        "pid": "${PID:-}",
+                        "thread": "%thread",
+                        "class": "%logger{36}",
+                        "message": "%message"
+                        }
+                    </pattern></pattern>
+                    <stackTrace/>
+                </providers>
+            </encoder>
+        </appender>
+    </springProfile>
+    
+    <logger name="com.example.phh" level="DEBUG" additivity="false">
+        <appender-ref ref="stdout" />
+        <springProfile name="dev, stg, prd">
+            <appender-ref ref="fluentd" />
+        </springProfile>
+    </logger>
+
+    <root level="INFO">
+        <appender-ref ref="stdout" />
+        <springProfile name="dev, stg, prd">
+            <appender-ref ref="fluentd" />
+        </springProfile>
+    </root>
+
+</configuration>

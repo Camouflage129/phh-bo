@@ -1,0 +1,33 @@
+spring:
+  profiles:
+    active: local
+  lifecycle:
+    timeout-per-shutdown-phase: 20s
+
+server:
+  port: 9000
+  shutdown: graceful
+
+management:
+  health:
+    probes:
+      enabled: true
+  endpoint:
+    health:
+      group:
+        readiness:
+          include:
+          - readinessState
+        liveness:
+          include:
+          - livenessState  
+  endpoints:
+    web:
+      exposure:
+        include:
+        - health
+        - liveness
+        - readiness
+      base-path: /sys
+      path-mapping:
+        health: healthz

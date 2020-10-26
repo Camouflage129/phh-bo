@@ -1,0 +1,107 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: phh-bo
+  namespace: phh-bo
+spec:
+  selector:
+    matchLabels:
+      app: phh-bo
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: phh-bo
+    spec:
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: nodegroup-type
+                operator: In
+                values:
+                - BACKEND
+      terminationGracePeriodSeconds: 30
+      containers:
+      - image: camouflage129/phh-bo:prd
+        imagePullPolicy: Always
+        name: phh-bo
+        ports:
+        - containerPort: 9090
+        # command: ["/bin/sh", "-c", "sleep 1000"]
+        lifecycle:
+          preStop:
+            exec:
+              command:
+              - sh
+              - -c
+              - curl -H "x-k8s-key:phh-bo" --silent http://localhost:9090/change/readiness/refuse
+        livenessProbe:
+          exec:
+            command:
+            - sh
+            - -c
+            - curl -H "x-k8s-key:phh-bo" --silent http://localhost:9090/sys/healthz/liveness | grep -q '^{\"status\"\:\"UP\".*}$'
+            - echo $?
+          initialDelaySeconds: 30
+          periodSeconds: 60
+          failureThreshold: 3
+          timeoutSeconds: 1
+        readinessProbe:
+          exec:
+            command:
+            - sh
+            - -c
+            - curl -H "x-k8s-key:phh-bo" --silent http://localhost:9090/sys/healthz/readiness | grep -q '^{\"status\"\:\"UP\".*}$'
+            - echo $?
+          initialDelaySeconds: 30
+          periodSeconds: 20
+          failureThreshold: 3
+          timeoutSeconds: 1
+        env:
+        - name: DB_HOST
+          valueFrom:
+            configMapKeyRef: 
+              name: spring-info
+              key: db-host
+        - name: DB_MAX_P_SIZE
+          valueFrom:
+            configMapKeyRef: 
+              name: spring-info
+              key: maximum-pool-size
+        - name: DB_MIN_P_SIZE
+          valueFrom:
+            configMapKeyRef: 
+              name: spring-info
+              key: minimum-idle
+        - name: DB_P_LIFETIME
+          valueFrom:
+            configMapKeyRef: 
+              name: spring-info
+              key: max-lifetime
+        - name: FULENTD_HOST
+          valueFrom:
+            configMapKeyRef: 
+              name: spring-info
+              key: fluentd-host
+        - name: LOG_TYPE
+          valueFrom:
+            configMapKeyRef: 
+              name: spring-info
+              key: log-type
+        - name: PROJECT
+          valueFrom:
+            configMapKeyRef: 
+              name: spring-info
+              key: project
+        - name: DB_USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: spring-secret
+              key: username
+        - name: DB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: spring-secret
+              key: password

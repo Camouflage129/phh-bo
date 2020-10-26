@@ -1,0 +1,47 @@
+apiVersion: skaffold/v2alpha4
+kind: Config
+profiles:           
+  - name: dev
+    build:      
+      tagPolicy:
+        envTemplate:
+          template: "{{.IMAGE_NAME}}:{{.VER}}"
+      artifacts:
+        - image: {{dev-account-ecr-url}}
+          jib: 
+            args: 
+            - -B
+            - -U
+            - -DskipTests 
+            - "-Djib.container.environment=SPRING_PROFILES_ACTIVE=dev"
+            - -Pdev
+
+  - name: stg
+    build:      
+      tagPolicy:
+        envTemplate:
+          template: "{{.IMAGE_NAME}}:{{.VER}}"
+      artifacts:
+        - image: {{stg-account-ecr-url}}
+          jib: 
+            args: 
+            - -B
+            - -U
+            - -DskipTests 
+            - "-Djib.container.environment=SPRING_PROFILES_ACTIVE=stg"
+            - -Pstg
+
+  - name: prd
+    build:      
+      tagPolicy:
+        envTemplate:
+          template: "{{.IMAGE_NAME}}:{{.VER}}"
+      artifacts:
+        - image: {{prd-account-ecr-url}}
+          jib: 
+            args: 
+            - -B
+            - -U
+            - -DskipTests 
+            - "-Djib.container.environment=SPRING_PROFILES_ACTIVE=prd"
+            - -Pprd
